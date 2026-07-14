@@ -31,12 +31,20 @@ const userSchema = new mongoose.Schema(
 )
 
 // Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next()
-  const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
-  next()
-})
+
+// for mongoose older versions, you might need to use the next() callback in the pre-save hook. However, in newer versions of Mongoose, you can return a promise instead of calling next(). Here's the updated code:
+// userSchema.pre('save', async function (next) {
+//   if (!this.isModified('password')) return next()
+//   const salt = await bcrypt.genSalt(10)
+//   this.password = await bcrypt.hash(this.password, salt)
+//   next()
+// })
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
+
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 
 // Method to compare passwords on login
 userSchema.methods.matchPassword = async function (enteredPassword) {

@@ -2,6 +2,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const cors = require('cors')
 const connectDB = require('./config/db')
+const { errorHandler } = require('./middleware/error.middleware')
 
 // Load environment variables first
 dotenv.config()
@@ -19,6 +20,12 @@ app.use(cors({
 }))
 app.use(express.json())
 
+// ─── Routes ───────────────────────────────────────────────────
+app.use('/api/auth', require('./routes/auth.routes'))
+app.use('/api/applications', require('./routes/application.routes'))
+app.use('/api/interviews', require('./routes/interview.routes'))
+app.use('/api/user', require('./routes/user.routes'))
+
 // ─── Test Route ───────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({
@@ -26,6 +33,18 @@ app.get('/', (req, res) => {
     message: 'Job Tracker API is running'
   })
 })
+
+// ─── 404 Handler ──────────────────────────────────────────────
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`
+  })
+})
+
+// ─── Error Handler ────────────────────────────────────────────
+// Must be last — after all routes
+app.use(errorHandler)
 
 // ─── Start Server ─────────────────────────────────────────────
 const PORT = process.env.PORT || 5000

@@ -4,30 +4,39 @@ const { validationResult } = require('express-validator')
 
 // ─── Register ─────────────────────────────────────────────────
 // POST /api/auth/register
-const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body
 
-    // Check if user already exists
-    const userExists = await User.findOne({ email })
+const register = async (req, res) => {
+  console.log("===register api hit====");
+  console.log(req.body);
+  try {
+    console.log("1");
+    // Check validation errors
+    const errors = validationResult(req);
+    console.log("2");
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: errors.array()[0].msg,
+      })
+    }
+    console.log("3");
+
+    const { name, email, password } = req.body
+    console.log("4");
+    const userExists = await User.findOne({ email });
+    console.log("5");
     if (userExists) {
       return res.status(400).json({
         success: false,
         message: 'User already exists with this email',
       })
     }
+    console.log("6");
 
-    // Create new user
-    // Password is automatically hashed by the pre('save') hook in User model
-    const user = await User.create({
-      name,
-      email,
-      password,
-    })
-
-    // Generate JWT token
+    const user = await User.create({ name, email, password });
+    console.log("7");
     const token = generateToken(user._id)
-
+    console.log("8");
     res.status(201).json({
       success: true,
       message: 'Account created successfully',
@@ -40,6 +49,9 @@ const register = async (req, res) => {
       },
     })
   } catch (error) {
+    console.log("===error in register api====");
+    console.error(error);
+    console.log(error.stack);
     res.status(500).json({
       success: false,
       message: error.message,
@@ -51,7 +63,22 @@ const register = async (req, res) => {
 // POST /api/auth/login
 const login = async (req, res) => {
   try {
+    const errors = validationResult(req)
+if (!errors.isEmpty()) {
+  return res.status(400).json({
+    success: false,
+    message: errors.array()[0].msg,
+  })
+}
     const { email, password } = req.body
+
+    // Manual validation
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and password',
+      })
+    }
 
     // Check if user exists
     const user = await User.findOne({ email })
@@ -62,7 +89,7 @@ const login = async (req, res) => {
       })
     }
 
-    // Check if password matches
+    // Check password
     const isMatch = await user.matchPassword(password)
     if (!isMatch) {
       return res.status(401).json({
@@ -71,7 +98,6 @@ const login = async (req, res) => {
       })
     }
 
-    // Generate JWT token
     const token = generateToken(user._id)
 
     res.status(200).json({

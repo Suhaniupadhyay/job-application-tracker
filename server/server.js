@@ -2,6 +2,7 @@ const express = require('express')
 const dotenv = require('dotenv')
 const cors = require('cors')
 const connectDB = require('./config/db')
+const startReminderJob = require('./jobs/reminder.job')
 const { errorHandler } = require('./middleware/error.middleware')
 
 // Load environment variables first
@@ -9,6 +10,8 @@ dotenv.config()
 
 // Connect to MongoDB
 connectDB()
+//for reminder job  Start cron jobs
+startReminderJob()
 
 // Create express app
 const app = express()

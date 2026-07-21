@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import KanbanPage from './pages/KanbanPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import ApplicationDetailPage from './pages/ApplicationDetailPage'
+import ApplicationFormPage from './pages/ApplicationFormPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
@@ -64,6 +65,23 @@ const App = () => {
             </AppLayout>
           </ProtectedRoute>
         } />
+        
+
+<Route path="/applications/new" element={
+  <ProtectedRoute>
+    <AppLayout>
+      <ApplicationFormPage />
+    </AppLayout>
+  </ProtectedRoute>
+} />
+
+<Route path="/applications/:id/edit" element={
+  <ProtectedRoute>
+    <AppLayout>
+      <ApplicationFormPage />
+    </AppLayout>
+  </ProtectedRoute>
+} />
 
         <Route path="/analytics" element={
           <ProtectedRoute>

@@ -9,6 +9,66 @@ import {
   getAnalytics,
 } from '../api/application.api'
 import toast from 'react-hot-toast'
+import {
+  getInterviews,
+  createInterview,
+  updateInterview,
+  deleteInterview,
+} from '../api/interview.api'
+
+// Get all interviews for an application
+export const useInterviews = (applicationId) => {
+  return useQuery({
+    queryKey: ['interviews', applicationId],
+    queryFn: () => getInterviews(applicationId),
+    enabled: !!applicationId,
+  })
+}
+
+// Create interview round
+export const useCreateInterview = (applicationId) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => createInterview(applicationId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interviews', applicationId] })
+      toast.success('Interview round added')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Something went wrong')
+    },
+  })
+}
+
+// Update interview round
+export const useUpdateInterview = (applicationId) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }) => updateInterview(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interviews', applicationId] })
+      toast.success('Interview round updated')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Something went wrong')
+    },
+  })
+}
+
+// Delete interview round
+export const useDeleteInterview = (applicationId) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: deleteInterview,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['interviews', applicationId] })
+      toast.success('Interview round deleted')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Something went wrong')
+    },
+  })
+}
 
 // Fetch all applications
 export const useApplications = () => {
